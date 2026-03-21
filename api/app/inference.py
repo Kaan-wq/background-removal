@@ -3,11 +3,13 @@ import onnxruntime as ort
 from PIL import Image
 from huggingface_hub import hf_hub_download
 import io
+import gc
 
 # Download and cache model on first run
 MODEL_PATH = hf_hub_download(repo_id='briaai/RMBG-1.4', filename='onnx/model.onnx')
 
 opts = ort.SessionOptions()
+opts.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL
 opts.intra_op_num_threads = 1
 opts.inter_op_num_threads = 1
 opts.enable_cpu_mem_arena = False
@@ -15,7 +17,7 @@ opts.enable_mem_pattern = True
 opts.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
 session = ort.InferenceSession(MODEL_PATH, sess_options=opts)
 
-INPUT_SIZE = (512, 512)
+INPUT_SIZE = (1024, 1024)
 
 def preprocess(image: Image.Image) -> np.ndarray:
     image = image.convert("RGB").resize(INPUT_SIZE)
@@ -35,15 +37,22 @@ def remove_background(image_bytes: bytes) -> bytes:
     original_size = image.size
 
     input_arr = preprocess(image)
+    del image
+    gc.collect()
+
     input_name = session.get_inputs()[0].name
     mask_arr = session.run(None, {input_name: input_arr})[0]
+    del input_arr
+    gc.collect()
 
     mask = postprocess(mask_arr, original_size)
+    del mask_arr, original_size
+    gc.collect()
 
-    # Apply mask as alpha channel
-    image = image.convert("RGBA")
-    image.putalpha(mask)
+    result = Image.open(io.BytesIO(image_bytes)).convert("RGBA")
+    result.putalpha(mask)
 
     output = io.BytesIO()
-    image.save(output, format="PNG")
+    result.save(output, format="PNG")
+
     return output.getvalue()
