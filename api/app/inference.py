@@ -8,8 +8,8 @@ import os
 
 # Download and cache model on first run
 MODEL_PATH = hf_hub_download(
-    repo_id='briaai/RMBG-1.4', 
-    filename='onnx/model.onnx', 
+    repo_id='briaai/RMBG-2.0', 
+    filename='onnx/model_quantized.onnx',
     token=os.environ.get('HF_TOKEN')
 )
 
