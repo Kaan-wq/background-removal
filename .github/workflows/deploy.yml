@@ -24,6 +24,8 @@ jobs:
           poetry install --no-root
 
       - name: Run tests
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           cd api
           poetry run pytest tests/ -v
