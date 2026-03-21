@@ -8,7 +8,7 @@ import io
 MODEL_PATH = hf_hub_download(repo_id='briaai/RMBG-1.4', filename='onnx/model_quantized.onnx')
 session = ort.InferenceSession(MODEL_PATH)
 
-INPUT_SIZE = (1024, 1024)
+INPUT_SIZE = (512, 512)
 
 def preprocess(image: Image.Image) -> np.ndarray:
     image = image.convert("RGB").resize(INPUT_SIZE)
