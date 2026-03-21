@@ -47,4 +47,5 @@ jobs:
           git config user.name "GitHub Action"
           git add .
           git commit -m "Deploy from GitHub Actions"
+          git branch -m master main
           git push --force https://kaanino:$HF_TOKEN@huggingface.co/spaces/kaanino/background-removal main
