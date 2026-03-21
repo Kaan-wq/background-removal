@@ -5,7 +5,7 @@ from huggingface_hub import hf_hub_download
 import io
 
 # Download and cache model on first run
-MODEL_PATH = hf_hub_download(repo_id='briaai/RMBG-1.4', filename='onnx/model_quantized.onnx')
+MODEL_PATH = hf_hub_download(repo_id='briaai/RMBG-1.4', filename='onnx/model.onnx')
 
 opts = ort.SessionOptions()
 opts.intra_op_num_threads = 1
@@ -15,7 +15,7 @@ opts.enable_mem_pattern = True
 opts.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
 session = ort.InferenceSession(MODEL_PATH, sess_options=opts)
 
-INPUT_SIZE = (1024, 1024)
+INPUT_SIZE = (512, 512)
 
 def preprocess(image: Image.Image) -> np.ndarray:
     image = image.convert("RGB").resize(INPUT_SIZE)
