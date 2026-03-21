@@ -5,7 +5,7 @@ from huggingface_hub import hf_hub_download
 import io
 
 # Download and cache model on first run
-MODEL_PATH = hf_hub_download(repo_id='briaai/RMBG-1.4', filename='onnx/model.onnx')
+MODEL_PATH = hf_hub_download(repo_id='briaai/RMBG-1.4', filename='onnx/model_quantized.onnx')
 session = ort.InferenceSession(MODEL_PATH)
 
 INPUT_SIZE = (1024, 1024)
