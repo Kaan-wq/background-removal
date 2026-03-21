@@ -1,0 +1,308 @@
+@import "tailwindcss";
+
+@import url("https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600&display=swap");
+
+:root {
+  --bg: #080a0f;
+  --surface: #0e1117;
+  --border: #1f2937;
+  --accent: #39ff14;
+  --accent-dim: rgba(57, 255, 20, 0.15);
+  --accent-glow: 0 0 20px rgba(57, 255, 20, 0.4);
+  --text: #a8b2c1;
+  --text-bright: #e2e8f0;
+  --danger: #ff3b3b;
+  --mono: "Share Tech Mono", monospace;
+  --sans: "Rajdhani", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Scanline overlay */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.08) 2px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Glitch title */
+.glitch {
+  font-family: var(--mono);
+  color: var(--accent);
+  position: relative;
+  letter-spacing: 0.15em;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+}
+
+.glitch::before {
+  color: #ff003c;
+  animation: glitch-1 3s infinite;
+  clip-path: polygon(0 30%, 100% 30%, 100% 50%, 0 50%);
+}
+
+.glitch::after {
+  color: #00eaff;
+  animation: glitch-2 3s infinite;
+  clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
+}
+
+@keyframes glitch-1 {
+  0%,
+  90%,
+  100% {
+    transform: none;
+    opacity: 0;
+  }
+  92% {
+    transform: translateX(-4px);
+    opacity: 0.8;
+  }
+  94% {
+    transform: translateX(4px);
+    opacity: 0.8;
+  }
+  96% {
+    transform: none;
+    opacity: 0;
+  }
+}
+
+@keyframes glitch-2 {
+  0%,
+  90%,
+  100% {
+    transform: none;
+    opacity: 0;
+  }
+  93% {
+    transform: translateX(4px);
+    opacity: 0.8;
+  }
+  95% {
+    transform: translateX(-4px);
+    opacity: 0.8;
+  }
+  97% {
+    transform: none;
+    opacity: 0;
+  }
+}
+
+/* Panel */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  position: relative;
+}
+
+.panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0.6;
+}
+
+/* Drop zone */
+.dropzone {
+  border: 1px dashed var(--border);
+  transition: all 0.2s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.dropzone:hover,
+.dropzone.active {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+  box-shadow: var(--accent-glow);
+}
+
+/* Button */
+.btn-primary {
+  font-family: var(--mono);
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  transition: all 0.2s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--accent-dim);
+  transform: translateX(-100%);
+  transition: transform 0.2s;
+}
+
+.btn-primary:hover:not(:disabled)::before {
+  transform: translateX(0);
+}
+
+.btn-primary:hover:not(:disabled) {
+  box-shadow: var(--accent-glow);
+}
+
+.btn-primary:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  border-color: var(--border);
+  color: var(--text);
+}
+
+/* Progress bar */
+.progress-bar {
+  height: 2px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  box-shadow: var(--accent-glow);
+  animation: progress 1.5s ease-in-out infinite;
+}
+
+@keyframes progress {
+  0% {
+    width: 0%;
+    margin-left: 0;
+  }
+  50% {
+    width: 60%;
+    margin-left: 20%;
+  }
+  100% {
+    width: 0%;
+    margin-left: 100%;
+  }
+}
+
+/* Image preview */
+.preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.preview-img.result {
+  background-image:
+    linear-gradient(45deg, #1a1a1a 25%, transparent 25%),
+    linear-gradient(-45deg, #1a1a1a 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #1a1a1a 75%),
+    linear-gradient(-45deg, transparent 75%, #1a1a1a 75%);
+  background-size: 20px 20px;
+  background-position:
+    0 0,
+    0 10px,
+    10px -10px,
+    -10px 0px;
+}
+
+.tag {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 2px 8px;
+  opacity: 0.7;
+}
+
+.error-msg {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--danger);
+  border-left: 2px solid var(--danger);
+  padding-left: 0.75rem;
+}
+
+/* Grid background */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 0;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+/* Glitch reveal animation */
+@keyframes glitch-reveal {
+  0% {
+    opacity: 0;
+    clip-path: inset(40% 0 40% 0);
+    transform: translateX(-6px);
+  }
+  20% {
+    opacity: 1;
+    clip-path: inset(0% 0 80% 0);
+    transform: translateX(4px);
+  }
+  40% {
+    clip-path: inset(60% 0 10% 0);
+    transform: translateX(-3px);
+  }
+  60% {
+    clip-path: inset(20% 0 50% 0);
+    transform: translateX(5px);
+  }
+  80% {
+    clip-path: inset(0% 0 0% 0);
+    transform: translateX(-2px);
+  }
+  100% {
+    opacity: 1;
+    clip-path: inset(0% 0 0% 0);
+    transform: translateX(0);
+  }
+}
+
+.glitch-reveal {
+  animation: glitch-reveal 0.5s ease-out forwards;
+}
