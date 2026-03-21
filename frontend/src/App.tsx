@@ -190,7 +190,8 @@ function App() {
 
       {/* Footer */}
       <footer className="mt-auto pt-4 border-t border-[var(--border)] font-mono text-xs opacity-30 text-center">
-        VOID.EXTRACT // BACKGROUND REMOVAL SYSTEM // {new Date().getFullYear()}
+        VOID.EXTRACT // ❤️ LOUISININI ❤️ // BACKGROUND REMOVAL SYSTEM //{" "}
+        {new Date().getFullYear()}
       </footer>
     </div>
   );
