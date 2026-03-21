@@ -1,12 +1,12 @@
 import numpy as np
 import onnxruntime as ort
 from PIL import Image
-from huggingface_hub import hf_hub_download
 import io
 import gc
 
 # Download and cache model on first run
-MODEL_PATH = hf_hub_download(repo_id='briaai/RMBG-1.4', filename='onnx/model_quantized.onnx')
+# MODEL_PATH = hf_hub_download(repo_id='briaai/RMBG-1.4', filename='onnx/model_quantized.onnx')
+MODEL_PATH = "/app/models/onnx/model_quantized.onnx"
 
 opts = ort.SessionOptions()
 opts.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL
@@ -15,7 +15,7 @@ opts.inter_op_num_threads = 1
 opts.enable_cpu_mem_arena = False
 opts.enable_mem_pattern = False
 opts.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
-session = ort.InferenceSession(MODEL_PATH, sess_options=opts)
+session = ort.InferenceSession(MODEL_PATH, sess_options=opts, providers=['CPUExecutionProvider'])
 
 INPUT_SIZE = (1024, 1024)
 
