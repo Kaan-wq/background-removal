@@ -8,9 +8,9 @@ import os
 
 # Download and cache model on first run
 MODEL_PATH = hf_hub_download(
-    repo_id='briaai/RMBG-2.0', 
-    filename='onnx/model_quantized.onnx',
-    token=os.environ.get('HF_TOKEN')
+    repo_id="briaai/RMBG-2.0",
+    filename="onnx/model_quantized.onnx",
+    token=os.environ.get("HF_TOKEN"),
 )
 
 opts = ort.SessionOptions()
@@ -20,22 +20,30 @@ opts.inter_op_num_threads = 1
 opts.enable_cpu_mem_arena = False
 opts.enable_mem_pattern = False
 opts.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
-session = ort.InferenceSession(MODEL_PATH, sess_options=opts, providers=['CPUExecutionProvider'])
+session = ort.InferenceSession(
+    MODEL_PATH, sess_options=opts, providers=["CPUExecutionProvider"]
+)
 
 INPUT_SIZE = (1024, 1024)
+
 
 def preprocess(image: Image.Image) -> np.ndarray:
     image = image.convert("RGB").resize(INPUT_SIZE)
     return np.expand_dims(
-        ((np.array(image, dtype=np.float32) / 255.0 - [0.485, 0.456, 0.406]) / [0.229, 0.224, 0.225])
+        (
+            (np.array(image, dtype=np.float32) / 255.0 - [0.485, 0.456, 0.406])
+            / [0.229, 0.224, 0.225]
+        )
         .astype(np.float32)
-        .transpose(2, 0, 1), 
-        axis=0
+        .transpose(2, 0, 1),
+        axis=0,
     )
 
-def postprocess(mask: np.ndarray, original_size: tuple) -> Image.Image:            
+
+def postprocess(mask: np.ndarray, original_size: tuple) -> Image.Image:
     mask = (mask.squeeze() * 255).astype(np.uint8)
     return Image.fromarray(mask).resize(original_size)
+
 
 def remove_background(image_bytes: bytes) -> bytes:
     image = Image.open(io.BytesIO(image_bytes))

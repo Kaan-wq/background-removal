@@ -1,4 +1,3 @@
-import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 from PIL import Image
@@ -16,7 +15,7 @@ def test_health():
 def test_remove_background_invalid_file_type():
     response = client.post(
         "/remove-background",
-        files={"file": ("test.txt", b"not an image", "text/plain")}
+        files={"file": ("test.txt", b"not an image", "text/plain")},
     )
     assert response.status_code == 400
 
@@ -28,8 +27,7 @@ def test_remove_background_valid_image():
     buf.seek(0)
 
     response = client.post(
-        "/remove-background",
-        files={"file": ("test.png", buf, "image/png")}
+        "/remove-background", files={"file": ("test.png", buf, "image/png")}
     )
     assert response.status_code == 200
     assert response.headers["content-type"] == "image/png"

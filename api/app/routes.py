@@ -4,12 +4,12 @@ from app.inference import remove_background
 
 router = APIRouter()
 
+
 @router.post("/remove-background")
 async def remove_background_route(file: UploadFile = File(...)):
     if file.content_type not in ["image/jpeg", "image/png", "image/webp"]:
         raise HTTPException(
-            status_code=400,
-            detail="Only JPEG, PNG and WEBP images are supported."
+            status_code=400, detail="Only JPEG, PNG and WEBP images are supported."
         )
 
     input_bytes = await file.read()
