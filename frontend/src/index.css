@@ -29,23 +29,105 @@ body {
   overflow-x: hidden;
 }
 
-/* Scanline overlay */
+/* ── MEGASTRUCTURE BACKGROUND ── */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    /* thick structural columns */
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 58px,
+      rgba(31, 41, 55, 0.7) 58px,
+      rgba(31, 41, 55, 0.7) 61px
+    ),
+    /* thinner inner shafts */
+    repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 18px,
+        rgba(31, 41, 55, 0.2) 18px,
+        rgba(31, 41, 55, 0.2) 19px
+      ),
+    /* major floor plates */
+    repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 118px,
+        rgba(31, 41, 55, 0.6) 118px,
+        rgba(31, 41, 55, 0.6) 121px
+      ),
+    /* mezzanine levels */
+    repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 38px,
+        rgba(31, 41, 55, 0.15) 38px,
+        rgba(31, 41, 55, 0.15) 39px
+      ),
+    /* sparse green lights — distant level indicators */
+    radial-gradient(
+        ellipse at 15% 30%,
+        rgba(57, 255, 20, 0.04) 0%,
+        transparent 40%
+      ),
+    radial-gradient(
+      ellipse at 80% 65%,
+      rgba(57, 255, 20, 0.03) 0%,
+      transparent 30%
+    ),
+    radial-gradient(
+      ellipse at 45% 85%,
+      rgba(57, 255, 20, 0.02) 0%,
+      transparent 25%
+    ),
+    /* abyss — darkness above and below */
+    linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.75) 0%,
+        transparent 25%,
+        transparent 75%,
+        rgba(0, 0, 0, 0.6) 100%
+      );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── GRAIN TEXTURE ── */
 body::after {
   content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* ── SCANLINES ── */
+.scanlines {
   position: fixed;
   inset: 0;
   background: repeating-linear-gradient(
     0deg,
     transparent,
     transparent 2px,
-    rgba(0, 0, 0, 0.08) 2px,
-    rgba(0, 0, 0, 0.08) 4px
+    rgba(0, 0, 0, 0.07) 2px,
+    rgba(0, 0, 0, 0.07) 4px
   );
   pointer-events: none;
   z-index: 9999;
 }
 
-/* Glitch title */
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── GLITCH TITLE ── */
 .glitch {
   font-family: var(--mono);
   color: var(--accent);
@@ -114,7 +196,7 @@ body::after {
   }
 }
 
-/* Panel */
+/* ── PANEL ── */
 .panel {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -132,7 +214,7 @@ body::after {
   opacity: 0.6;
 }
 
-/* Drop zone */
+/* ── DROP ZONE ── */
 .dropzone {
   border: 1px dashed var(--border);
   transition: all 0.2s;
@@ -148,7 +230,7 @@ body::after {
   box-shadow: var(--accent-glow);
 }
 
-/* Button */
+/* ── BUTTON ── */
 .btn-primary {
   font-family: var(--mono);
   background: transparent;
@@ -173,7 +255,6 @@ body::after {
 .btn-primary:hover:not(:disabled)::before {
   transform: translateX(0);
 }
-
 .btn-primary:hover:not(:disabled) {
   box-shadow: var(--accent-glow);
 }
@@ -185,7 +266,7 @@ body::after {
   color: var(--text);
 }
 
-/* Progress bar */
+/* ── PROGRESS BAR ── */
 .progress-bar {
   height: 2px;
   background: var(--border);
@@ -214,7 +295,7 @@ body::after {
   }
 }
 
-/* Image preview */
+/* ── IMAGE PREVIEW ── */
 .preview-img {
   width: 100%;
   height: 100%;
@@ -253,26 +334,7 @@ body::after {
   padding-left: 0.75rem;
 }
 
-/* Grid background */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background-image:
-    linear-gradient(var(--border) 1px, transparent 1px),
-    linear-gradient(90deg, var(--border) 1px, transparent 1px);
-  background-size: 40px 40px;
-  opacity: 0.3;
-  pointer-events: none;
-  z-index: 0;
-}
-
-#root {
-  position: relative;
-  z-index: 1;
-}
-
-/* Glitch reveal animation */
+/* ── GLITCH REVEAL ── */
 @keyframes glitch-reveal {
   0% {
     opacity: 0;

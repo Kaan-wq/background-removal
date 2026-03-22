@@ -7,6 +7,9 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [revealKey, setRevealKey] = useState(0);
+  const [fileInfo, setFileInfo] = useState<string | null>(null);
+  const [processingTime, setProcessingTime] = useState<number | null>(null);
+
   const fileRef = useRef<File | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -18,12 +21,19 @@ function App() {
   ];
   const [loadingStep, setLoadingStep] = useState(0);
 
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+  };
+
   const handleFile = (file: File) => {
     if (!file.type.startsWith("image/")) return;
     fileRef.current = file;
     setOriginalImage(URL.createObjectURL(file));
     setResultImage(null);
     setError(null);
+    setProcessingTime(null);
+    setFileInfo(`> ${file.name} // ${formatFileSize(file.size)}`);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,8 +53,9 @@ function App() {
     setIsLoading(true);
     setError(null);
     setLoadingStep(0);
+    setProcessingTime(null);
+    const startTime = Date.now();
 
-    // Cycle through loading messages
     const interval = setInterval(() => {
       setLoadingStep((s) => Math.min(s + 1, LOADING_STEPS.length - 1));
     }, 600);
@@ -55,17 +66,17 @@ function App() {
 
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/remove-background`,
-        {
-          method: "POST",
-          body: formData,
-        },
+        { method: "POST", body: formData },
       );
 
       if (!response.ok) throw new Error();
 
       const blob = await response.blob();
       setResultImage(URL.createObjectURL(blob));
-      setRevealKey((k) => k + 1); // triggers glitch animation
+      setRevealKey((k) => k + 1);
+      setProcessingTime(
+        parseFloat(((Date.now() - startTime) / 1000).toFixed(1)),
+      );
     } catch {
       setError("ERR: PROCESS FAILED — CHECK API CONNECTION");
     } finally {
@@ -76,124 +87,146 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen p-6 md:p-8 max-w-5xl mx-auto flex flex-col gap-8">
-      {/* Header */}
-      <header className="flex items-center justify-between py-4 border-b border-[var(--border)]">
-        <h1 className="glitch text-2xl font-bold" data-text="VOID.EXTRACT">
-          VOID.EXTRACT
-        </h1>
-        <span className="tag">v0.1.0 // BETA</span>
-      </header>
+    <>
+      <div className="scanlines" />
 
-      {/* Description */}
-      <div className="panel rounded p-6 flex flex-col gap-2">
-        <p className="font-mono text-xs text-[var(--accent)] opacity-70 tracking-widest">
-          // SYSTEM DESCRIPTION
-        </p>
-        <p className="text-[var(--text-bright)] text-lg font-semibold leading-snug">
-          Instant background removal — powered by AI.
-        </p>
-        <p className="text-[var(--text)] text-sm leading-relaxed">
-          Upload any image and VOID.EXTRACT will isolate the subject and strip
-          the background in seconds. No manual masking, no subscriptions. Drop
-          your image below and hit extract.
-        </p>
-      </div>
+      <div className="min-h-screen p-6 md:p-8 max-w-5xl mx-auto flex flex-col gap-8">
+        {/* Header */}
+        <header className="flex items-center justify-between py-4 border-b border-[var(--border)]">
+          <h1 className="glitch text-2xl font-bold" data-text="VOID.EXTRACT">
+            VOID.EXTRACT
+          </h1>
+          <span className="tag">v0.1.0 // BETA</span>
+        </header>
 
-      {/* Drop zone */}
-      <div
-        className={`dropzone panel rounded p-12 flex flex-col items-center gap-4 text-center ${isDragging ? "active" : ""}`}
-        onClick={() => inputRef.current?.click()}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setIsDragging(true);
-        }}
-        onDragLeave={() => setIsDragging(false)}
-        onDrop={handleDrop}
-      >
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleInputChange}
-        />
-        <p className="text-4xl">⬡</p>
-        <p className="font-semibold text-[var(--text-bright)] tracking-wide">
-          DROP IMAGE OR CLICK TO UPLOAD
-        </p>
-        <p className="text-sm font-mono text-[var(--text)] opacity-60">
-          PNG / JPG / WEBP
-        </p>
-      </div>
-
-      {/* Progress bar */}
-      {isLoading && (
-        <div className="progress-bar rounded">
-          <div className="progress-bar-fill" />
+        {/* Description */}
+        <div className="panel rounded p-6 flex flex-col gap-2">
+          <p className="font-mono text-xs text-[var(--accent)] opacity-70 tracking-widest">
+            // SYSTEM DESCRIPTION
+          </p>
+          <p className="text-[var(--text-bright)] text-lg font-semibold leading-snug">
+            Background removal — powered by AI.
+          </p>
+          <p className="text-[var(--text)] text-sm leading-relaxed">
+            Upload any image and VOID.EXTRACT will isolate the subject and strip
+            the background. No manual masking, no subscriptions. Drop your image
+            below and hit extract.
+          </p>
         </div>
-      )}
 
-      {/* Error */}
-      {error && <p className="error-msg">{error}</p>}
+        {/* Drop zone */}
+        <div
+          className={`dropzone panel rounded p-12 flex flex-col items-center gap-4 text-center ${isDragging ? "active" : ""}`}
+          onClick={() => inputRef.current?.click()}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setIsDragging(true);
+          }}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={handleDrop}
+        >
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleInputChange}
+          />
+          <p className="text-4xl">⬡</p>
+          <p className="font-semibold text-[var(--text-bright)] tracking-wide">
+            DROP IMAGE OR CLICK TO UPLOAD
+          </p>
+          <p className="text-sm font-mono text-[var(--text)] opacity-60">
+            PNG / JPG / WEBP
+          </p>
+          {fileInfo && (
+            <p className="text-xs font-mono text-[var(--accent)] opacity-80 mt-2">
+              {fileInfo}
+            </p>
+          )}
+        </div>
 
-      {/* Action button */}
-      <button
-        className="btn-primary w-full py-4 text-lg rounded"
-        onClick={handleRemoveBackground}
-        disabled={!originalImage || isLoading}
-      >
-        {isLoading ? LOADING_STEPS[loadingStep] : "// EXTRACT SUBJECT"}
-      </button>
-
-      {/* Preview panels */}
-      {originalImage && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="panel rounded overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border)]">
-              <span className="tag">INPUT</span>
-            </div>
-            <div className="h-72 flex items-center justify-center p-4">
-              <img src={originalImage} alt="Original" className="preview-img" />
-            </div>
+        {/* Progress bar */}
+        {isLoading && (
+          <div className="progress-bar rounded">
+            <div className="progress-bar-fill" />
           </div>
+        )}
 
-          <div className="panel rounded overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border)]">
-              <span className="tag">OUTPUT</span>
-              {resultImage && (
-                <a
-                  href={resultImage}
-                  download="void_extract.png"
-                  className="tag hover:opacity-100 transition-opacity"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  ↓ SAVE
-                </a>
-              )}
-            </div>
-            <div className="h-72 flex items-center justify-center p-4">
-              {resultImage ? (
+        {/* Error */}
+        {error && <p className="error-msg">{error}</p>}
+
+        {/* Action button */}
+        <button
+          className="btn-primary w-full py-4 text-lg rounded"
+          onClick={handleRemoveBackground}
+          disabled={!originalImage || isLoading}
+        >
+          {isLoading ? LOADING_STEPS[loadingStep] : "// EXTRACT SUBJECT"}
+        </button>
+
+        {/* Preview panels */}
+        {originalImage && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="panel rounded overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border)]">
+                <span className="tag">INPUT</span>
+              </div>
+              <div className="h-72 flex items-center justify-center p-4">
                 <img
-                  key={revealKey}
-                  src={resultImage}
-                  alt="Result"
-                  className="preview-img result glitch-reveal"
+                  src={originalImage}
+                  alt="Original"
+                  className="preview-img"
                 />
-              ) : (
-                <p className="font-mono text-sm opacity-30">AWAITING PROCESS</p>
-              )}
+              </div>
+            </div>
+
+            <div className="panel rounded overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border)]">
+                <span className="tag">OUTPUT</span>
+                <div className="flex items-center gap-3">
+                  {processingTime && (
+                    <span className="font-mono text-[0.6rem] text-[var(--text)] opacity-50">
+                      {processingTime}s
+                    </span>
+                  )}
+                  {resultImage && (
+                    <a
+                      href={resultImage}
+                      download="void_extract.png"
+                      className="tag hover:opacity-100 transition-opacity"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      ↓ SAVE
+                    </a>
+                  )}
+                </div>
+              </div>
+              <div className="h-72 flex items-center justify-center p-4">
+                {resultImage ? (
+                  <img
+                    key={revealKey}
+                    src={resultImage}
+                    alt="Result"
+                    className="preview-img result glitch-reveal"
+                  />
+                ) : (
+                  <p className="font-mono text-sm opacity-30">
+                    AWAITING PROCESS
+                  </p>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Footer */}
-      <footer className="mt-auto pt-4 border-t border-[var(--border)] font-mono text-xs opacity-30 text-center">
-        VOID.EXTRACT // ❤️ LOUISININI ❤️ // BACKGROUND REMOVAL SYSTEM //{" "}
-        {new Date().getFullYear()}
-      </footer>
-    </div>
+        {/* Footer */}
+        <footer className="mt-auto pt-4 border-t border-[var(--border)] font-mono text-xs opacity-30 text-center">
+          VOID.EXTRACT // ❤️ LOUISININI ❤️ // BACKGROUND REMOVAL SYSTEM //{" "}
+          {new Date().getFullYear()}
+        </footer>
+      </div>
+    </>
   );
 }
 
