@@ -34,3 +34,7 @@ frontend/.vite/
 htmlcov/
 .coverage
 .DS_Store
+
+# Doc demo videos
+docs/bg-rem.mov
+docs/bg-rem-recording.mov
